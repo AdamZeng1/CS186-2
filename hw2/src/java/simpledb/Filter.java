@@ -22,11 +22,14 @@ public class Filter extends Operator {
      */
     public Filter(Predicate p, DbIterator child) {
         // IMPLEMENT ME
+        super();
+        this.pred = p;
+        this.child = child;
     }
 
     public Predicate getPredicate() {
         // IMPLEMENT ME
-        return null;
+        return this.pred;
     }
 
     /**
@@ -34,20 +37,24 @@ public class Filter extends Operator {
      */
     public TupleDesc getTupleDesc() {
         // IMPLEMENT ME
-        return null;
+        return this.child.getTupleDesc();
     }
 
-    public void open() throws DbException, NoSuchElementException,
-            TransactionAbortedException {
+    public void open() throws DbException, NoSuchElementException, TransactionAbortedException {
         // IMPLEMENT ME
+        this.child.open();
+        super.open();
     }
 
     public void close() {
         // IMPLEMENT ME
+        super.close();
+        this.child.close();
     }
 
     public void rewind() throws DbException, TransactionAbortedException {
         // IMPLEMENT ME
+        this.child.rewind();
     }
 
     /**
@@ -62,6 +69,17 @@ public class Filter extends Operator {
     protected Tuple fetchNext() throws NoSuchElementException,
             TransactionAbortedException, DbException {
         // IMPLEMENT ME
+        if (this.child != null)
+        {
+            while (this.child.hasNext())
+            {
+                Tuple t = this.child.next();
+                if (this.pred.filter(t))
+                {
+                    return t;
+                }
+            }
+        }
         return null;
     }
 
